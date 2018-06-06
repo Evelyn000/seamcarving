@@ -11,9 +11,7 @@ import matplotlib.image as mpimg # mpimg 用于读取图片
 import numpy as np
 from energy_class_new import ENERGY
 #import Image
-#import cv2
-
-seam('coast.jpg', 'coast_modified.jpg', 600, 399, "without_le")
+import cv2
 
 
 class seam:
@@ -22,33 +20,39 @@ class seam:
         self.filename_out=filename_out
         self.m_out=m_out
         self.n_out=n_out
-        self.img_in=mpimg.imread(filename).astype(np.float64)
-        self.img_out=img_in
+        self.img_in=cv2.imread(filename_in).astype(np.float64)
+        self.img_out=self.img_in
         self.energy_solver=ENERGY(type)
 
     def simple_carve(self):
         m, n, c=self.img_out.shape
         if n>self.n_out:
-            collapse(n_out)
+            self.collapse(self.n_out)
         elif m>self.m_out:
-            img_out=np.transpose(img_out, (1, 0, 2))
-            collapse(m_out)
-            img_out=np.transpose(img_out, (1, 0, 2))
+            self.img_out=np.transpose(self.img_out, (1, 0, 2))
+            self.collapse(self.m_out)
+            self.img_out=np.transpose(self.img_out, (1, 0, 2))
         elif n<self.n_out:
-            enlarge(n_out)
+            self.enlarge(self.n_out)
+                #plt.imshow(self.img_out)
+                #print(np.typeDict['self.img_out'])
+        cv2.imwrite(self.filename_out, self.img_out)
+
         
     # 先默认竖向seam
     def Find_seam(self, M): # M is a matrix of energy
         m, n = M.shape
-        seam_point_list = np.zeros((m, 1), dtype=np.int16)
+        seam_point_list = np.zeros((m, ), dtype=np.int16)
         seam_point_list[-1] = np.argmin(M[-1])
-        for i in range(m-2, -1, 1):
-            if seam_point_list[i+1]==0:
+        for i in range(m-2, -1, -1):
+            tmp=seam_point_list[i+1]
+            if tmp==0:
                 seam_point_list[i]=np.argmin(M[i, :2])
-            elif seam_point_list[i+1]==n-1:
+            elif tmp==n-1:
                 seam_point_list[i]=np.argmin(M[i, n-2:])+n-2
             else:
-                seam_point_list[i]=np.argmin(M[i, seam_point_list[i+1]-1 :2])+seam_point_list[i+1]-1
+                seam_point_list[i]=np.argmin(M[i, tmp-1 :tmp+2])+tmp-1
+        #print(seam_point_list[i])
         return seam_point_list #seam_point_list 用来储存seam路线上的所有点的坐标
 
     ##compute_energy(img)
@@ -58,12 +62,13 @@ class seam:
 
     def collapse(self, n_o):
         m, n, c =self.img_out.shape
-        while n>self.n_o:
-            M=energy_solver.compute_energy(self.img_out)
-            seam_point_list=Find_seam(M)
-            img_out=Remove_seam(seam_point_list, self.img_out)
-            m, n, c=img_out.shape
-            print(seam_point_list, '\n')
+        while n>self.n_out:
+            M=self.energy_solver.compute_energy(self.img_out)
+            seam_point_list=self.Find_seam(M)
+            self.img_out=self.Remove_seam(seam_point_list, self.img_out)
+            m, n, c=self.img_out.shape
+    #print(M, '\n')
+#print(seam_point_list, '\n')
 
     def Remove_seam(self, seam_point_list, img_i): # X is the orginal matrix, M is X's energy matrix
         m, n, c = img_i.shape
@@ -113,6 +118,9 @@ def main():
         sys.exit(2)
         
 
-#if __name__ == "__main__":
+if __name__ == "__main__":
 #	main()
+    seam_carve=seam('coast.jpg', 'coast_modified_forward.jpg', 400, 550, "forward")
+    seam_carve.simple_carve()
+
 
