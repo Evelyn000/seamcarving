@@ -45,25 +45,30 @@ class ENERGY:
         B,G,R = cv2.split(img)
         
         M = np.zeros((height,width))
-        xlist = [-1,0,1,1,1,0,-1,-1]
-        ylist = [-1,-1,-1,0,1,1,1,0]
-        val = np.zeros(8)
         
-      
-        
-        for i in range (1,height + 1):
-            for j in range (1,width + 1):
-                s = 0
-                for d in range (0,8):
-                    val[d]=(abs(Rpad[i,j]-Rpad[i+xlist[d],j+ylist[d]])+abs(Gpad[i,j]-Gpad[i+xlist[d],j+ylist[d]])+abs(Bpad[i,j]-Bpad[i+xlist[d],j+ylist[d]]))/3
-                    s += val[d]
-                if (i==1 and j==1) or (i==1 and j==width) or (i==height and j==1) or (i==height and j==width):
-                        normalize = 3
-                elif (i>1 and i<height+1 and j>1 and j<width+1):
-                        normalize = 8
-                else:
-                        normalize = 5
-                M[i-1,j-1] = s/normalize            
+        Kernel = np.zeros((8,3,3))
+        for i in range (0, 8):
+            tmp = np.array((3,3))
+            tmp[int(i/3), i%3] = -1
+            Kernel[i] = np.array([[0,0,0],[0,1,0],[0,0,0]])+tmp
+
+        Rres, Gres, Bres = np.zeros((height, width))
+        for i in range (0, 8):
+            res = cv2.filter2D(R,-1,kernel=Kernel[i],anchor=(-1,-1))
+            res = abs(res)
+            Rres += res
+
+        for i in range (0, 8):
+            res = cv2.filter2D(G,-1,kernel=Kernel[i],anchor=(-1,-1))
+            res = abs(res)
+            Gres += res
+
+        for i in range (0, 8):
+            res = cv2.filter2D(B,-1,kernel=Kernel[i],anchor=(-1,-1))
+            res = abs(res)
+            Bres +=res
+
+        M = Rres + Gres + Bres
             
         return M # M is a matrix
     
