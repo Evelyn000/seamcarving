@@ -42,17 +42,14 @@ class ENERGY:
         
     def without_le(self, img):
         height, width = img.shape[:2]
-        B = (img[0:height, 0:width, 0]).reshape((height,width))
-        G = (img[0:height, 0:width, 1]).reshape((height,width))
-        R = (img[0:height, 0:width, 2]).reshape((height,width))
+        B,G,R = cv2.split(img)
+        
         M = np.zeros((height,width))
         xlist = [-1,0,1,1,1,0,-1,-1]
         ylist = [-1,-1,-1,0,1,1,1,0]
         val = np.zeros(8)
         
-        Rpad = np.pad(R,((1,1),(1,1)),'constant',constant_values=(0,0))
-        Gpad = np.pad(G,((1,1),(1,1)),'constant',constant_values=(0,0))
-        Bpad = np.pad(B,((1,1),(1,1)),'constant',constant_values=(0,0))
+      
         
         for i in range (1,height + 1):
             for j in range (1,width + 1):
