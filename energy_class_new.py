@@ -14,12 +14,12 @@ import cv2
 #img = mpimg.imread('coast.jpg') # 读取和代码处于同一目录下的 coast.jpg
 # 此时 img 就已经是一个 np.array 了，可以对它进行任意处理
 # print(img.shape) #(400, 600, 3)
-
+'''
 plt.subplot(231)
 plt.imshow(img) # 显示图片
 plt.title('coast')
 plt.axis('off') # 不显示坐标轴
-
+'''
 class ENERGY:
     def __init__(self, type):
         #kernel for local entropy computation
