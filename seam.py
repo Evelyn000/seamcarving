@@ -28,13 +28,22 @@ class seam:
         m, n, c=self.img_out.shape
         if n>self.n_out:
             self.collapse(self.n_out)
-        elif m>self.m_out:
+    
+        if m>self.m_out:
             self.img_out=np.transpose(self.img_out, (1, 0, 2))
             self.collapse(self.m_out)
             self.img_out=np.transpose(self.img_out, (1, 0, 2))
-        elif n<self.n_out:
+        
+        m, n, c=self.img_out.shape
+        
+        if n<self.n_out:
             self.enlarge(self.n_out)
-                #plt.imshow(self.img_out)
+                
+        if m<self.m_out:
+            self.img_out=np.transpose(self.img_out, (1, 0, 2))
+            self.enlarge(self.m_out)
+            self.img_out=np.transpose(self.img_out, (1, 0, 2))
+                            #plt.imshow(self.img_out)
                 #print(np.typeDict['self.img_out'])
         cv2.imwrite(self.filename_out, self.img_out)
 
@@ -57,12 +66,17 @@ class seam:
 
     ##compute_energy(img)
     def enlarge(self, n_o):
-        img_mask=M
+        m, n, c=self.img_out.shape
+        M=self.energy_solver.compute_energy(self.img_out)
+        while n<n_o:
+            seam_point_list=self.Find_seam(M)
+            self.img_out, M=self.Duplicate_seam(seam_point_list, self.img_out, M)
+            m, n, c=self.img_out.shape
 
 
     def collapse(self, n_o):
         m, n, c =self.img_out.shape
-        while n>self.n_out:
+        while n>n_o:
             M=self.energy_solver.compute_energy(self.img_out)
             seam_point_list=self.Find_seam(M)
             self.img_out=self.Remove_seam(seam_point_list, self.img_out)
@@ -77,14 +91,21 @@ class seam:
             img_o[i, :, :]=np.delete(img_i[i], [seam_point_list[i]], axis=0)
         return img_o #返回裁剪之后的图片(400,600,3)
      
-    def Duplicate_seam(self, seam_point_list, img_i):  # X is the orginal matrix, M is X's energy matrix
+    def Duplicate_seam(self, seam_point_list, img_i, M):  # X is the orginal matrix, M is X's energy matrix
+        max_energy=268435456
         m, n, c = img_i.shape
         img_o = np.zeros((m, n+1, 3), dtype=np.float32)
+        M_out=np.zeros((m, n+1), dtype=np.float64)
         for i in range(m):
-            img_o[i, :seam_point_list[i]+1, :]=img_i[i, :seam_point_list[i]+1, :]
-            img_o[i, seam_point_list[i]+1, :]=img_i[i, seam_point_list[i]+1, :]
-            img_o[i, seam_point_list[i]+2:, :]=img_i[i, seam_point_list[i]+2:, :]
-        return img_o #返回拉长之后的图片(400,600,3)
+            tmp=seam_point_list[i]
+            img_o[i, :tmp+1, :]=img_i[i, :tmp+1, :]
+            img_o[i, tmp+1, :]=img_i[i, tmp, :]
+            img_o[i, tmp+2:, :]=img_i[i, tmp+1:, :]
+            M_out[i, :tmp]=M[i, :tmp]
+            M_out[i][tmp]=max_energy
+            M_out[i][tmp+1]=max_energy
+            M_out[i, tmp+2:]=M[i, tmp+1:]
+        return img_o, M_out #返回拉长之后的图片(400,600,3)
 
 def main():
     from optparse import OptionParser
@@ -120,7 +141,7 @@ def main():
 
 if __name__ == "__main__":
 #	main()
-    seam_carve=seam('coast.jpg', 'coast_modified_forward.jpg', 400, 550, "forward")
+    seam_carve=seam('coast.jpg', 'coast_enlarged_withoutle.jpg', 350, 650, "without_le")
     seam_carve.simple_carve()
 
 

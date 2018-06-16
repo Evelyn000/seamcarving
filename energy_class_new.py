@@ -21,7 +21,7 @@ plt.title('coast')
 plt.axis('off') # 不显示坐标轴
 
 class ENERGY:
-    def __init__(self):
+    def __init__(self, type):
         #kernel for local entropy computation
         self.kernel_9_9 = np.ones((9,9)).astype(np.float64)
         
@@ -30,7 +30,7 @@ class ENERGY:
         self.kernel_y_left = np.array([[0., 0., 0.], [0., 0., 1.], [0., -1., 0.]], dtype=np.float64)
         self.kernel_y_right = np.array([[0., 0., 0.], [1., 0., 0.], [0., -1., 0.]], dtype=np.float64)
         
-        self.energy_type = {"without_le","with_le","forward"}
+        self.energy_type = type
         
     def compute_energy(self, img):
         if self.energy_type == "without_le":
@@ -120,7 +120,7 @@ class ENERGY:
                     F[i,j] = energy_map[i,j]+min(e_left,e_right,e_up)
         return F       
 
-    def neighbourmat_le(Gray,kernel):
+    def neighbourmat_le(Gray, kernel):
         res = cv2.filter2D(Gray,-1,kernel=kernel,anchor=(-1, -1))
         return res
     def neighbourmat_forward(self,kernel):
