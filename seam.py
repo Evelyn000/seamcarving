@@ -151,13 +151,16 @@ def main():
     usage+= "1=regular energy with entropy term\n"
     usage+= "2=forward energy\n3=deep-based energy"
     
-    if sys.argv[1]=="--help":
+    
+    if len(sys.argv)!=6 and len(sys.argv)!=2:
+        print ("Incorrect Usage; please see python seam.py --help")
+        sys.exit(2)
+    
+    
+    if len(sys.argv)==2 and sys.argv[1]=="--help":
         print(usage)
         sys.exit(2)
     
-    elif len(sys.argv)>6:
-        print ("Incorrect Usage; please see python seam.py --help")
-        sys.exit(2)
     else:
         print(sys.argv)
         filename_in=sys.argv[1]
