@@ -52,7 +52,9 @@ class ENERGY:
             tmp[int(i/3), i%3] = -1
             Kernel[i] = np.array([[0,0,0],[0,1,0],[0,0,0]])+tmp
 
-        Rres, Gres, Bres = np.zeros((height, width))
+        Rres = np.zeros((height, width))
+        Gres = np.zeros((height, width))
+        Bres = np.zeros((height, width))
         for i in range (0, 8):
             res = cv2.filter2D(R,-1,kernel=Kernel[i],anchor=(-1,-1))
             res = abs(res)
@@ -97,12 +99,12 @@ class ENERGY:
     
     def forward(self,img):
         energy_map = self.with_le(img)
-        return self.forward_energy_map(energy_map,img)
+        return self.forward_energy_map(energy_map, img)
     
     def forward_energy_map(self, energy_map,img):
-        mat_x = self.neighbourmat_forward(self.kernel_x,img)
-        mat_y_left = self.neighbourmat_forward(self.kernel_y_left,img)
-        mat_y_right = self.neighbourmat_forward(self.kernel_y_right,img)
+        mat_x = self.neighbourmat_forward(self.kernel_x, img)
+        mat_y_left = self.neighbourmat_forward(self.kernel_y_left, img)
+        mat_y_right = self.neighbourmat_forward(self.kernel_y_right, img)
         
         m,n = energy_map.shape
         F = np.copy(energy_map)
