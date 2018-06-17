@@ -46,12 +46,15 @@ class ENERGY:
         
         M = np.zeros((height,width))
         
-        Kernel = np.zeros((8,3,3))
-        for i in range (0, 8):
+        Kernel = np.zeros((9,3,3))
+        for i in range (0, 9):
             tmp = np.zeros((3,3))
             tmp[int(i/3), i%3] = -1
             Kernel[i] = np.array([[0,0,0],[0,1,0],[0,0,0]])+tmp
 
+        for i in range (4, 8):
+            Kernel[i] = Kernel[i+1]
+        
         Rres = np.zeros((height, width))
         Gres = np.zeros((height, width))
         Bres = np.zeros((height, width))
@@ -59,18 +62,21 @@ class ENERGY:
             res = cv2.filter2D(R,-1,kernel=Kernel[i],anchor=(-1,-1))
             res = abs(res)
             Rres += res
-
+        Rres = Rres/8
+        
         for i in range (0, 8):
             res = cv2.filter2D(G,-1,kernel=Kernel[i],anchor=(-1,-1))
             res = abs(res)
             Gres += res
-
+        Gres = Gres/8
+        
         for i in range (0, 8):
             res = cv2.filter2D(B,-1,kernel=Kernel[i],anchor=(-1,-1))
             res = abs(res)
             Bres +=res
-
-        M = Rres + Gres + Bres
+        Bres = Bres/8
+        
+        M = (Rres + Gres + Bres)/3
             
         return M # M is a matrix
     
