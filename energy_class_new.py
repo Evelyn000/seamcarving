@@ -100,7 +100,7 @@ class ENERGY:
                         s += p[m-(i-4),n-(j-4)]
                 H[i,j] = s
         
-        M = self.without_le(self,img)
+        M = self.without_le(img)
         return H + M
     
     def forward(self,img):
