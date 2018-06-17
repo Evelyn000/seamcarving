@@ -33,11 +33,11 @@ class ENERGY:
         self.energy_type = type
         
     def compute_energy(self, img):
-        if self.energy_type == "without_le":
+        if self.energy_type == 0:
             return self.without_le(img)
-        elif self.energy_type == "with_le":
+        elif self.energy_type == 1:
             return self.with_le(img)
-        elif self.energy_type == "forward":
+        elif self.energy_type == 2:
             return self.forward(img)
         
     def without_le(self, img):
