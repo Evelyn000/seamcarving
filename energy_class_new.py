@@ -48,7 +48,7 @@ class ENERGY:
         
         Kernel = np.zeros((8,3,3))
         for i in range (0, 8):
-            tmp = np.array((3,3))
+            tmp = np.zeros((3,3))
             tmp[int(i/3), i%3] = -1
             Kernel[i] = np.array([[0,0,0],[0,1,0],[0,0,0]])+tmp
 
@@ -92,17 +92,17 @@ class ENERGY:
                         s += p[m-(i-4),n-(j-4)]
                 H[i,j] = s
         
-        M = self.energy_map_without_le(self)
+        M = self.without_le(self,img)
         return H + M
     
     def forward(self,img):
         energy_map = self.with_le(img)
-        return self.forward_energy_map(self, energy_map)
+        return self.forward_energy_map(energy_map,img)
     
-    def forward_energy_map(self, energy_map):
-        mat_x = self.neighbourmat_forward(self.kernel_x)
-        mat_y_left = self.neighbourmat_forward(self.kernel_y_left)
-        mat_y_right = self.neighbourmat_forward(self.kernel_y_right)
+    def forward_energy_map(self, energy_map,img):
+        mat_x = self.neighbourmat_forward(self.kernel_x,img)
+        mat_y_left = self.neighbourmat_forward(self.kernel_y_left,img)
+        mat_y_right = self.neighbourmat_forward(self.kernel_y_right,img)
         
         m,n = energy_map.shape
         F = np.copy(energy_map)
@@ -125,8 +125,8 @@ class ENERGY:
         return F       
 
 
-    def neighbourmat_forward(self,kernel):
-        B,G,R = cv2.split(self.img_out)
+    def neighbourmat_forward(self,kernel,img):
+        B,G,R = cv2.split(img)
         res = np.absolute(cv2.filter2D(B,-1,kernel=kernel,anchor=(-1, -1)))+\
               np.absolute(cv2.filter2D(G,-1,kernel=kernel,anchor=(-1, -1)))+\
               np.absolute(cv2.filter2D(R,-1,kernel=kernel,anchor=(-1, -1)))
