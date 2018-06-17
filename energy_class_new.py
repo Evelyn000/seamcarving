@@ -76,8 +76,10 @@ class ENERGY:
         height, width = img.shape[:2]
         B,G,R = cv2.split(img)
         Gray = R*0.3 + G*0.59 + B*0.11
-       
-        N = self.neighbourmat_le(Gray, self.kernel_9_9)
+        kernel99= np.ones((9,9))
+        basef = cv2.filter2D(Gray,-1,kernel=kernel99,anchor=(-1, -1))
+        
+        
         H = np.zeros((height,width))
         for i in range(4, height - 4):
             for j in range (4, width - 4):
@@ -85,9 +87,9 @@ class ENERGY:
                 s = 0
                 for m in range (i-4,i+5):
                     for n in range (j-4,j+5):
-                        p[m,n] = Gray[m,n] / N[i,j]
-                        p[m,n] = -p[m,n]*math.log(p[m,n])
-                        s += p[m,n]
+                        p[m-(i-4),n-(j-4)] = Gray[m,n] / basef[i,j]
+                        p[m-(i-4),n-(j-4)] = -p[m-(i-4),n-(j-4)]*math.log(p[m-(i-4),n-(j-4)])
+                        s += p[m-(i-4),n-(j-4)]
                 H[i,j] = s
         
         M = self.energy_map_without_le(self)
@@ -122,9 +124,7 @@ class ENERGY:
                     F[i,j] = energy_map[i,j]+min(e_left,e_right,e_up)
         return F       
 
-    def neighbourmat_le(Gray, kernel):
-        res = cv2.filter2D(Gray,-1,kernel=kernel,anchor=(-1, -1))
-        return res
+
     def neighbourmat_forward(self,kernel):
         B,G,R = cv2.split(self.img_out)
         res = np.absolute(cv2.filter2D(B,-1,kernel=kernel,anchor=(-1, -1)))+\
