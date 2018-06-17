@@ -143,55 +143,36 @@ class seam:
             M_out[i, tmp+2:]=M[i, tmp+1:]
         return img_o, M_out #返回拉长之后的图片(400,600,3)
 '''
-'''
+
 def main():
-    from optparse import OptionParser
-    import os
     usage = "usage: %prog <input image> <width> <height> <energy type> <output image> \n"
     usage+= "for energy type:\n"
     usage+= "0=regular energy without entropy term\n"
     usage+= "1=regular energy with entropy term\n"
     usage+= "2=forward energy\n3=deep-based energy"
     
-    parser = OptionParser(usage=usage)
-    if not options.input_image or not options.resolution:
-        print ("Incorrect Usage; please see python seam.py --help")
+    if sys.argv[1]=="--help":
+        print(usage)
         sys.exit(2)
     
-    from optparse import OptionParser
-    import os 
-    usage = "usage: %prog -i [input image] -r [width] [height] -o [output name] \n" 
-    usage+= "where [width] and [height] are the resolution of the new image"
-    parser = OptionParser(usage=usage)
-    (options, args) = parser.parse_args()
-    parser.add_option("-i", "--image", dest="input_image", help="Input Image File")
-    parser.add_option("-r", "--resolution", dest="resolution", help="Output Image size [width], [height]", nargs=2)
-    parser.add_option("-o", "--output", dest="output", help="Output Image File Name")
-    parser.add_option("-v", "--verbose", dest="verbose", help="Trigger Verbose Printing", action="store_true")
-    parser.add_option("-m", "--mark", dest="mark", help="Mark Seams Targeted. Only works for deleting", action="store_true")
-    # discuss options here
-    if not options.input_image or not options.resolution:
+    elif len(sys.argv)>6:
         print ("Incorrect Usage; please see python seam.py --help")
         sys.exit(2)
-    if options.verbose:
-        global verbose
-        verbose = True
-    if not options.output:
-        output_image = os.path.splitext(options.input_image)[0] + ".coast.jpg"
     else:
-        output_image = options.output
-	
-    try: 
-        input_image = options.input_image
-        resolution = ( int(options.resolution[0]), int(options.resolution[1]) )
-    except:
-        print ("Incorrect Usage; please see python CAIS.py --help")
-        sys.exit(2)
-    '''
-        
+        print(sys.argv)
+        filename_in=sys.argv[1]
+        n_out=int(sys.argv[2])
+        m_out=int(sys.argv[3])
+        type=int(sys.argv[4])
+        if type>2 or type<0:
+            sys.exit(2)
+        filename_out=sys.argv[5]
+        seam_carve=seam(filename_in, filename_out, m_out, n_out, type)
+        seam_carve.simple_carve()
+    
+
 
 if __name__ == "__main__":
-    seam_carve=seam('coast.jpg', 'coast_enlarged_withoutle.jpeg', 300, 700, "without_le")
-    seam_carve.simple_carve()
+    main()
 
 
