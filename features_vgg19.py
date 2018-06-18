@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jun 18 17:58:21 2018
-
-@author: mayiping
-"""
-
 import torch
 import matplotlib.image as mpimg
 import numpy as np
