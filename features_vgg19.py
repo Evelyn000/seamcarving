@@ -20,6 +20,27 @@ class vggmodel():
             print(x)  # print every layer value
             x = layer(x)
             
+    def extract_firstrelu(self):
+        x = self.image
+        cnt = 0
+        for index, layer in enumerate(self.model):
+            print(index, layer)
+            if cnt == 1:
+                #print(x)
+                return x
+            x = layer(x)
+            cnt = cnt + 1
+            
+    def extract_secondrelu(self):
+        x = self.image
+        cnt = 0
+        for index, layer  in enumerate(self.model):
+            print(index,layer)
+            if cnt == 3:
+                return x
+            x = layer(x)
+            cnt = cnt + 1
+    
     def image_for_pytorch(self, img):
         transform = transforms.Compose([
             transforms.ToTensor(),  # range [0, 255] -> [0.0,1.0]  
@@ -36,3 +57,6 @@ if __name__ == '__main__':
     pretrained_model = models.vgg19(pretrained=True).features 
     model = vggmodel(pretrained_model)
     model.show()
+    firstrelu = model.extract_firstrelu()
+    firstrelu.squeeze()
+    print('firstrelu', firstrelu)
