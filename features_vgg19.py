@@ -17,29 +17,29 @@ class vggmodel():
         self.model = model
         self.model.eval()
         img = mpimg.imread('coast.jpg')
-        self.created_image = self.image_for_pytorch(img)
+        self.image = self.image_for_pytorch(img)
 
     def show(self):
-        x = self.created_image
+        x = self.image
         for index, layer in enumerate(self.model):
             print(index,layer)
             #print(layer.weight)
             print(x)  # print every layer value
             x = layer(x)
             
-    def image_for_pytorch(self, Data):
+    def image_for_pytorch(self, img):
         transform = transforms.Compose([
             transforms.ToTensor(),  # range [0, 255] -> [0.0,1.0]  
             transforms.Normalize(mean=(0.485, 0.456, 0.406), 
                                  std=(0.229, 0.224, 0.225))
         ])
             
-        imgData = transform(Data)
-        imgData = Variable(torch.unsqueeze(imgData, dim=0), requires_grad=True)
-        return imgData
+        imgres = transform(img)
+        imgres = Variable(torch.unsqueeze(imgres, dim=0), requires_grad=True)
+        return imgres
 
 if __name__ == '__main__':
     # here extract features directly
-    pretrained_model = models.vgg16(pretrained=True).features 
+    pretrained_model = models.vgg19(pretrained=True).features 
     model = vggmodel(pretrained_model)
     model.show()
