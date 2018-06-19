@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt # plt 用于显示图片
 import matplotlib.image as mpimg # mpimg 用于读取图片
 import numpy as np
 import cv2
+import torch.models as models
+from features_vgg19 import vggmodel
 #import Image
 #img = mpimg.imread('coast.jpg') # 读取和代码处于同一目录下的 coast.jpg
 # 此时 img 就已经是一个 np.array 了，可以对它进行任意处理
@@ -39,7 +41,29 @@ class ENERGY:
             return self.with_le(img)
         elif self.energy_type == 2:
             return self.forward(img)
+        elif self.energy_type == 3:
+            return self.deepbased(img)
+    
+    def deepbased(self, img):
+        pretrained_model = models.vgg19(pretrained=True).features 
+        model = vggmodel(pretrained_model)
+        model.show() # print every layer's info 
+        firstrelu = model.extract_firstrelu()
+        a = firstrelu.squeeze(0)
+        b = a.data.numpy()
+        channel, height, width = b.shape
+        acmp = np.zeros((height, width))
         
+        for i in range (0, channel):
+            acmp += abs(b[i])
+    
+        #print('acmp', acmp)
+        B = acmp
+        G = acmp
+        R = acmp     
+        Gray = R*0.3 + G*0.59 + B*0.11
+        return Gray
+    
     def without_le(self, img):
         height, width = img.shape[:2]
         B,G,R = cv2.split(img)
