@@ -95,9 +95,9 @@ class ENERGY:
                 s = 0
                 for m in range (i-4,i+5):
                     for n in range (j-4,j+5):
-                        p[m-(i-4),n-(j-4)] = Gray[m,n] / basef[i,j]
-                        p[m-(i-4),n-(j-4)] = -p[m-(i-4),n-(j-4)]*math.log(p[m-(i-4),n-(j-4)])
-                        s += p[m-(i-4),n-(j-4)]
+                        p[m-(i-4), n-(j-4)] = Gray[m,n] / basef[i,j]
+                        temp = math.log(p[m-(i-4), n-(j-4)] + 1)
+                        s += -p[m-(i-4), n-(j-4)] * temp
                 H[i,j] = s
         
         M = self.without_le(img)
