@@ -4,6 +4,7 @@ import numpy as np
 from torchvision import models
 from torch.autograd import Variable
 import torchvision.transforms as transforms
+import cv2
 
 class vggmodel():
     def __init__(self, model):
@@ -58,5 +59,19 @@ if __name__ == '__main__':
     model = vggmodel(pretrained_model)
     model.show()
     firstrelu = model.extract_firstrelu()
-    firstrelu.squeeze()
-    print('firstrelu', firstrelu)
+    a = firstrelu.squeeze(0)
+    b = a.data.numpy()
+    channel, height, width = b.shape
+    acmp = np.zeros((height, width))
+    for i in range (0, channel):
+        acmp += abs(b[i])
+    
+    print('acmp', acmp)
+    
+    B = acmp
+    G = acmp
+    R = acmp
+    img =cv2.merge([B,G,R])
+    cv2.imwrite('acmp_res.jpg', img)
+    
+    
