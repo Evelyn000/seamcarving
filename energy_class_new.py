@@ -48,21 +48,41 @@ class ENERGY:
         pretrained_model = models.vgg19(pretrained=True).features 
         model = vggmodel(pretrained_model)
         model.show() # print every layer's info 
-        firstrelu = model.extract_firstrelu()
-        a = firstrelu.squeeze(0)
-        b = a.data.numpy()
-        channel, height, width = b.shape
-        acmp = np.zeros((height, width))
         
-        for i in range (0, channel):
-            acmp += abs(b[i])
+        firstlayer = model.extract_firstlayer()
+        secondlayer = model.extract_secondlayer()
+        thirdlayer = model.extract_thirdlayer()
+        print('firstlayer shape', firstlayer.shape)
+        print('secondlayer shape', secondlayer.shape)
+        print('thirdlayer shape', thirdlayer.shape)
     
-        #print('acmp', acmp)
-        B = acmp
-        G = acmp
-        R = acmp     
-        Gray = R*0.3 + G*0.59 + B*0.11
-        return Gray
+        featuretensor1 = (firstlayer.squeeze(0)).data.numpy()
+        featuretensor2 = (secondlayer.squeeze(0)).data.numpy()
+        featuretensor3 = (thirdlayer.squeeze(0)).data.numpy()
+    
+        channel, height, width = featuretensor1.shape
+        featuremap1 = np.zeros((height, width))
+        for i in range (0, channel):
+            featuremap1 += abs(featuretensor1[i]*featuretensor1[i])
+            
+        channel, height, width = featuretensor2.shape
+        featuremap2 = np.zeros((height, width))
+        for i in range (0, channel):
+            featuremap2 += abs(featuretensor2[i]*featuretensor2[i])
+    
+        channel, height, width = featuretensor3.shape
+        featuremap3 = np.zeros((height, width))
+        for i in range (0, channel):
+            featuremap3 += abs(featuretensor3[i]*featuretensor3[i])
+    
+        img = mpimg.imread('coast.jpg')
+        height, width = img.shape[:2]    
+        np.resize(featuremap1, (height, width))
+        np.resize(featuremap2, (height, width))
+        np.resize(featuremap3, (height, width))
+    
+        featuremap = featuremap1 + featuremap2 + featuremap3
+        return featuremap
     
     def without_le(self, img):
         height, width = img.shape[:2]

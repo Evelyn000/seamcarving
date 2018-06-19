@@ -21,23 +21,33 @@ class vggmodel():
             print(x)  # print every layer value
             x = layer(x)
             
-    def extract_firstrelu(self):
+    def extract_firstlayer(self):
         x = self.image
         cnt = 0
         for index, layer in enumerate(self.model):
             print(index, layer)
-            if cnt == 1:
+            if cnt == 7:
                 #print(x)
                 return x
             x = layer(x)
             cnt = cnt + 1
             
-    def extract_secondrelu(self):
+    def extract_secondlayer(self):
         x = self.image
         cnt = 0
         for index, layer  in enumerate(self.model):
             print(index,layer)
-            if cnt == 3:
+            if cnt == 10:
+                return x
+            x = layer(x)
+            cnt = cnt + 1
+    
+    def extract_thirdlayer(self):
+        x = self.image
+        cnt = 0
+        for index, layer  in enumerate(self.model):
+            print(index,layer)
+            if cnt == 19:
                 return x
             x = layer(x)
             cnt = cnt + 1
@@ -58,20 +68,45 @@ if __name__ == '__main__':
     pretrained_model = models.vgg19(pretrained=True).features 
     model = vggmodel(pretrained_model)
     model.show()
-    firstrelu = model.extract_firstrelu()
-    a = firstrelu.squeeze(0)
-    b = a.data.numpy()
-    channel, height, width = b.shape
-    acmp = np.zeros((height, width))
+    
+    firstlayer = model.extract_firstlayer()
+    secondlayer = model.extract_secondlayer()
+    thirdlayer = model.extract_thirdlayer()
+    print('firstlayer shape', firstlayer.shape)
+    print('secondlayer shape', secondlayer.shape)
+    print('thirdlayer shape', thirdlayer.shape)
+    
+    featuretensor1 = (firstlayer.squeeze(0)).data.numpy()
+    featuretensor2 = (secondlayer.squeeze(0)).data.numpy()
+    featuretensor3 = (thirdlayer.squeeze(0)).data.numpy()
+    
+    channel, height, width = featuretensor1.shape
+    featuremap1 = np.zeros((height, width))
     for i in range (0, channel):
-        acmp += abs(b[i])
+        featuremap1 += abs(featuretensor1[i]*featuretensor1[i])
     
-    print('acmp', acmp)
+    channel, height, width = featuretensor2.shape
+    featuremap2 = np.zeros((height, width))
+    for i in range (0, channel):
+        featuremap2 += abs(featuretensor2[i]*featuretensor2[i])
     
-    B = acmp
-    G = acmp
-    R = acmp
-    img =cv2.merge([B,G,R])
-    cv2.imwrite('acmp_res.jpg', img)
+    channel, height, width = featuretensor3.shape
+    featuremap3 = np.zeros((height, width))
+    for i in range (0, channel):
+        featuremap3 += abs(featuretensor3[i]*featuretensor3[i])
+    
+    img = mpimg.imread('coast.jpg')
+    height, width = img.shape[:2]    
+    np.resize(featuremap1, (height, width))
+    np.resize(featuremap2, (height, width))
+    np.resize(featuremap3, (height, width))
+    
+    featuremap = featuremap1 + featuremap2 + featuremap3
+    
+    b = featuremap
+    g = featuremap
+    r = featuremap
+    img =cv2.merge([b,g,r])
+    cv2.imwrite('res.jpg', img)
     
     
