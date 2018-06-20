@@ -46,7 +46,7 @@ class ENERGY:
     
     def deepbased(self, img):
         pretrained_model = models.vgg19(pretrained=True).features 
-        model = vggmodel(pretrained_model)
+        model = vggmodel(pretrained_model, img)
         model.show() # print every layer's info 
         
         firstlayer = model.extract_firstlayer()
@@ -75,7 +75,6 @@ class ENERGY:
         for i in range (0, channel):
             featuremap3 += abs(featuretensor3[i]*featuretensor3[i])
     
-        img = mpimg.imread('coast.jpg')
         height, width = img.shape[:2]    
         np.resize(featuremap1, (height, width))
         np.resize(featuremap2, (height, width))

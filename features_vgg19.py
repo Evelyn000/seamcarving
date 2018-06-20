@@ -7,17 +7,15 @@ import torchvision.transforms as transforms
 import cv2
 
 class vggmodel():
-    def __init__(self, model):
+    def __init__(self, model, img):
         self.model = model
         self.model.eval()
-        img = mpimg.imread('coast.jpg')
         self.image = self.image_for_pytorch(img)
 
     def show(self):
         x = self.image
         for index, layer in enumerate(self.model):
             print(index,layer)
-            #print(layer.weight)
             print(x)  # print every layer value
             x = layer(x)
             
@@ -64,9 +62,11 @@ class vggmodel():
         return imgres
 
 if __name__ == '__main__':
+    
+    img = mpimg.imread('coast.jpg')
     # here extract features directly
     pretrained_model = models.vgg19(pretrained=True).features 
-    model = vggmodel(pretrained_model)
+    model = vggmodel(pretrained_model, img)
     model.show()
     
     firstlayer = model.extract_firstlayer()
@@ -95,7 +95,6 @@ if __name__ == '__main__':
     for i in range (0, channel):
         featuremap3 += abs(featuretensor3[i]*featuretensor3[i])
     
-    img = mpimg.imread('coast.jpg')
     height, width = img.shape[:2]    
     np.resize(featuremap1, (height, width))
     np.resize(featuremap2, (height, width))
