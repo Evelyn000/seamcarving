@@ -2,10 +2,14 @@ A simple implementation of seam carving, a content aware image resizing method.
 
 Usage: python seam.py \<input image\> \<width\> \<height\> \<energy type\> \<output image\>
   
-For energy type\\
-0 = regular energy without entropy term\\
-1 = regular energy with entropy term\\
-2 = forward energy\\
+For energy type  
+
+0 = regular energy without entropy term  
+
+1 = regular energy with entropy term  
+
+2 = forward energy  
+
 3 = deep-based energy
   
 For example:
