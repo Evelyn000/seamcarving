@@ -11,7 +11,7 @@ For energy type
 For example:
 <pre><code>python seam.py test/bird.jpeg 350 600 0 bird_rgb.jpeg
 </code></pre>
-for resizing bird.jpeg to $350\times 600$ with RGB energy, and save to bird_rgb.jpeg
+for resizing bird.jpeg to 350×600 with RGB energy, and save to bird_rgb.jpeg
 
 For help, see 
 <pre><code>python seam.py --help
