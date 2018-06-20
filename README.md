@@ -1,6 +1,6 @@
 A simple implementation of seam carving, a content aware image resizing method.
 
-Usage: python seam.py <input image> <width> <height> <energy type> <output image>
+Usage: python seam.py \<input image\> \<width\> \<height\> \<energy type\> \<output image\>
   
 For energy type
 0 = regular energy without entropy term
