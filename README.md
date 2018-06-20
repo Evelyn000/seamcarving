@@ -4,13 +4,13 @@ Usage: python seam.py \<input image\> \<width\> \<height\> \<energy type\> \<out
   
 For energy type  
 
-0 = regular energy without entropy term  
+* 0 = regular energy without entropy term  
 
-1 = regular energy with entropy term  
+* 1 = regular energy with entropy term  
 
-2 = forward energy  
+* 2 = forward energy  
 
-3 = deep-based energy
+* 3 = deep-based energy
   
 For example:
 <pre><code>python seam.py test/bird.jpeg 350 600 0 bird_rgb.jpeg
