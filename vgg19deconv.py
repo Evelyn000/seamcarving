@@ -6,10 +6,10 @@ import numpy as np
 vgg19_pretrained = models.vgg19(pretrained=True)
 cfg=[64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M']
 
-class VGG19_conv(torch.nn.Module):
-    def __init__(self, n_classes):
+class VGG19_conv(nn.Module):
+    def __init__(self):
         super(VGG19_conv, self).__init__()
-        self.features=make_layers()
+        self.features=self.make_layers()
         self.feature_outputs = [0]*len(self.features)
         self.pool_indices = dict()
         self._initialize_weights()
@@ -37,7 +37,7 @@ class VGG19_conv(torch.nn.Module):
                 self.feature_outputs[i] = output
         return output
 
-    def make_layers():
+    def make_layers(self):
         layers=[]
         in_channels=3
         for v in cfg:
@@ -48,8 +48,14 @@ class VGG19_conv(torch.nn.Module):
                 in_channels=v
         return nn.Sequential(*layers)
 
+    def forward(self, x):
+        output = self.forward_features(x)
+        output = output.view(output.size()[0], -1)
+        return output
 
-class VGG19_deconv(torch.nn.Module):
+
+
+class VGG19_deconv(nn.Module):
     def __init__(self):
         super(VGG19_deconv, self).__init__()
 
@@ -59,12 +65,12 @@ class VGG19_deconv(torch.nn.Module):
         self.unpool2PoolIdx = {18:4, 15:9, 10:18, 5:27, 0:36}
 
         
-        self.deconv_features = make_layers()
-        self.deconv_first_layers = make_layers(first_layer=True)
+        self.deconv_features = self.make_layers()
+        self.deconv_first_layers = self.make_layers(first_layer=True)
         self._initialize_weights()
 
 
-    def make_layers(first_layer=False):
+    def make_layers(self, first_layer=False):
         layers=[]
         for v in range(len(cfg)-1, -1, -1):
             if cfg[v] == 'M':
@@ -77,8 +83,13 @@ class VGG19_deconv(torch.nn.Module):
                         layers+=[nn.ConvTranspose2d(cfg[v], cfg[v-2], 3, padding=1)]
                 else:
                     layers+=[nn.ConvTranspose2d(cfg[v], cfg[v], 3, padding=1)]
+            else:
+                if first_layer:
+                    layers+=[nn.ConvTranspose2d(1, 3, 3, padding=1)]
+                else:
+                    layers+=[nn.ConvTranspose2d(64, 3, 3, padding=1)]
         if first_layer:
-            return nn.ModuleList(*layers)
+            return nn.ModuleList(layers)
         else:
             return nn.Sequential(*layers)
 
@@ -96,7 +107,7 @@ class VGG19_deconv(torch.nn.Module):
 
     def forward(self, x, layer_number, map_number, pool_indices):
         start_idx = self.conv2DeconvIdx[layer_number]
-        if not isinstance(self.deconv_first_layers[start_idx], torch.nn.ConvTranspose2d):
+        if not isinstance(self.deconv_first_layers[start_idx], nn.ConvTranspose2d):
             raise ValueError('Layer '+str(layer_number)+' is not of type Conv2d')
         # set weight and bias
         self.deconv_first_layers[start_idx].weight.data = self.deconv_features[start_idx].weight[map_number].data[None, :, :, :]
@@ -106,7 +117,7 @@ class VGG19_deconv(torch.nn.Module):
 
         # transpose conv through the rest of the network
         for i in range(start_idx+1, len(self.deconv_features)):
-            if isinstance(self.deconv_features[i], torch.nn.MaxUnpool2d):
+            if isinstance(self.deconv_features[i], nn.MaxUnpool2d):
                 output = self.deconv_features[i](output, pool_indices[self.unpool2PoolIdx[i]])
             else:
                 output = self.deconv_features[i](output)
