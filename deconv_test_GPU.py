@@ -16,28 +16,31 @@ if __name__ == '__main__':
 	m, n, c = img.shape
 	img = cv2.resize(img, (224, 224))
 
-	img_var = torch.autograd.Variable(torch.FloatTensor(img.transpose(2,0,1)[np.newaxis,:,:,:].astype(float)))
-
+	img_var = torch.autograd.Variable(torch.FloatTensor(img.transpose(2,0,1)[np.newaxis,:,:,:].astype(float)).cuda())
 
 
 	conv = VGG19_conv()
+	conv.cuda()
 	conv_layer_indices = conv.get_conv_layer_indices()
 
 	conv_out = conv(img_var)
 
 	deconv=VGG19_deconv()
+	deconv.cuda()
 	for layer in conv_layer_indices:
-		n_maps = conv.feature_outputs[layer].data.numpy().shape[1]
+		n_maps = conv.feature_outputs[layer].data.cpu().numpy().shape[1]
 
 
 		raw_map = np.zeros((3, 224, 224), dtype=np.float64)
 		for map_idx in range(n_maps):
 			ret = deconv(conv.feature_outputs[layer][0][map_idx][None,None,:,:], layer, map_idx, conv.pool_indices)
-			raw_map += ret.data.numpy()[0]
+			raw_map += ret.data.cpu().numpy()[0]
 		#decon = deconv(conv.feature_outputs[layer][0][map_idx][None,None,:,:], layer, map_idx, conv.pool_indices)
 		img = decon_img(raw_map)
 		img=cv2.resize(img, (n, m))
 		filename='./deconv/deconvlayer'+str(layer)+'.jpg'
+		print(filename, img.shape)
+		print(img)
 		cv2.imwrite(filename, img)
 
 
