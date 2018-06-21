@@ -21,10 +21,10 @@ class VGG19_conv(torch.nn.Module):
             if isinstance(layer, nn.Conv2d):
                 self.features[i].weight.data = layer.weight.data
                 self.features[i].bias.data = layer.bias.data
-'''
+
     def get_conv_layer_indices(self):
-        return [0, 2, 5, 7, 10, 12, 14, 17, 19, 21, 24, 26, 28]
-'''
+        return [0, 2, 5, 7, 10, 12, 14, 16, 19, 21, 23, 25, 28, 30, 32, 34]
+
     def forward_features(self, x):
         output = x
         for i, layer in enumerate(self.features):
@@ -54,9 +54,9 @@ class VGG19_deconv(torch.nn.Module):
         super(VGG19_deconv, self).__init__()
 
         #!!!!todo
-        self.conv2DeconvIdx = {0:17, 2:16, 5:14, 7:13, 10:11, 12:10, 14:9, 17:7, 19:6, 21:5, 24:3, 26:2, 28:1}
-        self.conv2DeconvBiasIdx = {0:16, 2:14, 5:13, 7:11, 10:10, 12:9, 14:7, 17:6, 19:5, 21:3, 24:2, 26:1, 28:0}
-        self.unpool2PoolIdx = {15:4, 12:9, 8:16, 4:23, 0:30}
+        self.conv2DeconvIdx = {0:20, 2:19, 5:17, 7:16, 10:14, 12:13, 14:12, 16:11, 19:9, 21:8, 23:7, 25:6, 28:4, 30:3, 32:2, 34:1}
+        self.conv2DeconvBiasIdx = {0:19, 2:17, 5:16, 7:14, 10:13, 12:12, 14:11, 16:9, 19:8, 21:7, 23:6, 25:4, 28:3, 30:2, 32:1, 34:0}
+        self.unpool2PoolIdx = {18:4, 15:9, 10:18, 5:27, 0:36}
 
         
         self.deconv_features = make_layers()
@@ -66,7 +66,7 @@ class VGG19_deconv(torch.nn.Module):
 
     def make_layers(first_layer=False):
         layers=[]
-        for v in range(len(cfg), -1, -1):
+        for v in range(len(cfg)-1, -1, -1):
             if cfg[v] == 'M':
                 layers+=[nn.MaxUnpool2d(2, stride=2)]
             elif v!=0:
