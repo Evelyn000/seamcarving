@@ -11,6 +11,8 @@ For energy type
 * 2 = forward energy  
 
 * 3 = deep-based energy
+
+* 666 = deconvVGG19 energy
   
 For example:
 <pre><code>python seam.py test/bird.jpeg 350 600 0 bird_rgb.jpeg
