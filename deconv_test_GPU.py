@@ -1,4 +1,4 @@
-from vgg19deconvtest import *
+from vgg19deconv import *
 import numpy as np
 import cv2
 import sys
