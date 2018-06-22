@@ -33,6 +33,8 @@ class ENERGY:
         self.kernel_y_right = np.array([[0., 0., 0.], [1., 0., 0.], [0., -1., 0.]], dtype=np.float64)
         
         self.energy_type = type
+        if type == 666
+            import deconv_test_GPU as VGG
         
     def compute_energy(self, img):
         if self.energy_type == 0:
@@ -47,7 +49,6 @@ class ENERGY:
             return self.deconvbased(img)
 
     def deconvbased(self, img):
-        import deconv_test_GPU as VGG
         return VGG.energy_vgg(img, 34)
 
     '''
