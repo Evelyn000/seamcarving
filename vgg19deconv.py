@@ -16,7 +16,6 @@ class VGG19_conv(nn.Module):
 
 
     def _initialize_weights(self):
-        # initializing weights using ImageNet-trained model from PyTorch
         for i, layer in enumerate(vgg19_pretrained.features):
             if isinstance(layer, nn.Conv2d):
                 self.features[i].weight.data = layer.weight.data
@@ -59,7 +58,6 @@ class VGG19_deconv(nn.Module):
     def __init__(self):
         super(VGG19_deconv, self).__init__()
 
-        #!!!!todo
         self.conv2DeconvIdx = {0:20, 2:19, 5:17, 7:16, 10:14, 12:13, 14:12, 16:11, 19:9, 21:8, 23:7, 25:6, 28:4, 30:3, 32:2, 34:1}
         self.conv2DeconvBiasIdx = {0:19, 2:17, 5:16, 7:14, 10:13, 12:12, 14:11, 16:9, 19:8, 21:7, 23:6, 25:4, 28:3, 30:2, 32:1, 34:0}
         self.unpool2PoolIdx = {18:4, 15:9, 10:18, 5:27, 0:36}
@@ -96,29 +94,42 @@ class VGG19_deconv(nn.Module):
 
 
     def _initialize_weights(self):
-        # initializing weights using ImageNet-trained model from PyTorch
         for i, layer in enumerate(vgg19_pretrained.features):
             if isinstance(layer, nn.Conv2d):
                 self.deconv_features[self.conv2DeconvIdx[i]].weight.data = layer.weight.data
                 biasIdx = self.conv2DeconvBiasIdx[i]
                 if biasIdx > 0:
                     self.deconv_features[biasIdx].bias.data = layer.bias.data
-                
 
+    def forward(self, x, layer_number, pool_indices):
+        start_idx = self.conv2DeconvIdx[layer_number]
+        if not isinstance(self.deconv_first_layers[start_idx], nn.ConvTranspose2d):
+            raise ValueError('Layer '+str(layer_number)+' is not of type Conv2d')
+
+        output = x
+
+        for i in range(start_idx, len(self.deconv_features)):
+            if isinstance(self.deconv_features[i], nn.MaxUnpool2d):
+                output = self.deconv_features[i](output, pool_indices[self.unpool2PoolIdx[i]])
+            else:
+                output = self.deconv_features[i](output)
+        return output
+                
+    '''
     def forward(self, x, layer_number, map_number, pool_indices):
         start_idx = self.conv2DeconvIdx[layer_number]
         if not isinstance(self.deconv_first_layers[start_idx], nn.ConvTranspose2d):
             raise ValueError('Layer '+str(layer_number)+' is not of type Conv2d')
-        # set weight and bias
+
         self.deconv_first_layers[start_idx].weight.data = self.deconv_features[start_idx].weight[map_number].data[None, :, :, :]
-        self.deconv_first_layers[start_idx].bias.data = self.deconv_features[start_idx].bias.data        
-        # first layer will be single channeled, since we're picking a particular filter
+        self.deconv_first_layers[start_idx].bias.data = self.deconv_features[start_idx].bias.data  
+
         output = self.deconv_first_layers[start_idx](x)
 
-        # transpose conv through the rest of the network
         for i in range(start_idx+1, len(self.deconv_features)):
             if isinstance(self.deconv_features[i], nn.MaxUnpool2d):
                 output = self.deconv_features[i](output, pool_indices[self.unpool2PoolIdx[i]])
             else:
                 output = self.deconv_features[i](output)
         return output
+    '''

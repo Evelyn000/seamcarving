@@ -1,4 +1,4 @@
-from vgg19deconv import *
+from vgg19deconvtest import *
 import numpy as np
 import cv2
 import sys
@@ -29,6 +29,12 @@ def energy_vgg(img, layer):
 	deconv=VGG19_deconv()
 	deconv.cuda()
 	if layer in conv_layer_indices:
+		print('layer:', layer, conv.feature_outputs[layer].shape)
+		ret = deconv(conv.feature_outputs[layer], layer, conv.pool_indices)
+		img = decon_img(ret.data.cpu().numpy()[0])
+		img = cv2.resize(img, (n, m))
+		return img
+		'''
 		n_maps = conv.feature_outputs[layer].data.cpu().numpy().shape[1]
 
 
@@ -39,6 +45,7 @@ def energy_vgg(img, layer):
 		img = decon_img(raw_map)
 		img = cv2.resize(img, (n, m))
 		return img
+		'''
 
 	else:
 		return -1
@@ -51,5 +58,5 @@ if __name__ == '__main__':
 	for layer in [0, 2, 5, 7, 10, 12, 14, 16, 19, 21, 23, 25, 28, 30, 32, 34]:
 		energy_map = energy_vgg(img, layer)
 		energy_map = energy_map.astype(np.uint16)
-		filename='./deconvGRAY/deconvlayer'+str(layer)+'.jpg'
+		filename='./deconvtest/layer'+str(layer)+'.jpg'
 		cv2.imwrite(filename, energy_map)
