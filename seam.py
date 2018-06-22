@@ -15,7 +15,7 @@ import cv2
 
 
 class seam:
-    def __init__(self, filename_in, filename_out, m_out, n_out, type):
+    def __init__(self, filename_in, filename_out, m_out, n_out, type, opt_deep_layer=0):
         self.filename_in=filename_in
         self.filename_out=filename_out
         self.m_out=m_out
@@ -23,6 +23,7 @@ class seam:
         self.img_in=cv2.imread(filename_in).astype(np.float64)
         self.img_out=self.img_in
         self.energy_solver=ENERGY(type)
+        self.opt_deep_layer = opt_deep_layer
 
     def simple_carve(self):
         m, n, c=self.img_out.shape
@@ -118,7 +119,7 @@ class seam:
         mask_cd[:]=np.arange(n)
         seam_point_list=np.zeros((m, ),dtype=np.int16)
         while n<n_o:
-            M=self.energy_solver.compute_energy(mask)
+            M=self.energy_solver.compute_energy(mask, self.opt_deep_layer)
             seam_point_list_org=self.Find_seam(M)
             for i in range(m):
                 seam_point_list[i]=mask_cd[i][seam_point_list_org[i]]
@@ -131,7 +132,7 @@ class seam:
     def collapse(self, n_o):
         m, n, c =self.img_out.shape
         while n>n_o:
-            M=self.energy_solver.compute_energy(self.img_out)
+            M=self.energy_solver.compute_energy(self.img_out, self.opt_deep_layer)
             seam_point_list=self.Find_seam(M)
             self.img_out=self.Remove_seam(seam_point_list, self.img_out)
             m, n, c=self.img_out.shape
@@ -190,7 +191,7 @@ def main():
     usage += "666=deep-based energy"
     
     
-    if len(sys.argv)!=6 and len(sys.argv)!=2:
+    if len(sys.argv)!=7 and len(sys.argv)!=6 and len(sys.argv)!=2:
         print ("Incorrect Usage; please see python seam.py --help")
         sys.exit(2)
     
@@ -208,7 +209,11 @@ def main():
         if type != 666 and (type>2 or type<0):
             sys.exit(2)
         filename_out=sys.argv[5]
-        seam_carve=seam(filename_in, filename_out, m_out, n_out, type)
+        if len(sys.argv)==7:
+            opt_deep_layer=int(sys.argv[6])
+            seam_carve=seam(filename_in, filename_out, m_out, n_out, type, opt_deep_layer)
+        else:
+            seam_carve=seam(filename_in, filename_out, m_out, n_out, type)
         seam_carve.simple_carve()
     
 
