@@ -47,7 +47,43 @@ class seam:
                 #print(np.typeDict['self.img_out'])
         cv2.imwrite(self.filename_out, self.img_out)
 
-        
+
+    '''
+    def opt_carve(self):
+        m, n, _=self.img_out.shape
+        r=abs(m-self.m_out)
+        c=abs(n-self.n_out)
+        e=np.zeros((r+1, c+1), dtype=np.float64)
+        eseamr=np.zeros((r+1, c+1, n), dtype=np.int16)
+        eseamc=np.zeros((r+1, c+1, m), dtype=np.int16)
+        direction=np.zeros((r+1, c+1), dtype=np.int16)
+        for i in range(0, r+1, 1):
+            for j in range(0, c+1, 1):
+                if j>0:
+                    img_rc=construct_img(i, j-1, eseamr, eseamc, direction)
+                    M=self.energy_solver.compute_energy(img_rc)
+                    eseamc=Find_seam(M)
+    
+    def construct_img(r, c, eseamr, eseamc, direction):
+        img_o=self.img_in
+        while r>0 or c>0:
+            if c>0 and direction[r, c]==0:
+                Remove_seam(eseamc[r, c], img_o)
+            elif r>0 and direction[r, c]==1:
+                img_o=np.transpose(img_o, (1, 0, 2))
+                Remove_seam(eseamr[r, c], img_o)
+                img_o=np.transpose(img_o, (1, 0, 2))
+            else:
+                print("optimal seam err!")
+                sys.exit(2)
+            r-=1
+            c-=1
+        return img_o
+
+    def get_seam_energy(self, M, seam_point_list):
+        for i in range()
+    '''
+    
     # 先默认竖向seam
     def Find_seam(self, M): # M is a matrix of energy
         m, n = M.shape
@@ -89,7 +125,7 @@ class seam:
             self.img_out=self.Duplicate_seam(seam_point_list, self.img_out)
             mask=self.Remove_seam(seam_point_list_org, mask)
             mask_cd=self.remove_mask(seam_point_list_org, mask_cd)
-            m, n, c=self.img_out.shape
+            m, n, c=self.img_out.shapes
 
 
     def collapse(self, n_o):
@@ -113,6 +149,7 @@ class seam:
         m, n=mask.shape
         mask_o=np.zeros((m, n-1), dtype=np.int16)
         for i in range(m):
+            mask[i, seam_point_list[i]:]=mask[i, seam_point_list[i]:]+1
             mask_o[i, :]=np.delete(mask[i], [seam_point_list[i]])
         return mask_o
 
@@ -146,10 +183,11 @@ class seam:
 
 def main():
     usage = "usage: %prog <input image> <width> <height> <energy type> <output image> \n"
-    usage+= "for energy type:\n"
-    usage+= "0=regular energy without entropy term\n"
-    usage+= "1=regular energy with entropy term\n"
-    usage+= "2=forward energy\n3=deep-based energy"
+    usage += "for energy type:\n"
+    usage += "0=regular energy without entropy term\n"
+    usage += "1=regular energy with entropy term\n"
+    usage += "2=forward energy\n"
+    usage += "666=deep-based energy"
     
     
     if len(sys.argv)!=6 and len(sys.argv)!=2:
@@ -167,7 +205,7 @@ def main():
         n_out=int(sys.argv[2])
         m_out=int(sys.argv[3])
         type=int(sys.argv[4])
-        if type>2 or type<0:
+        if type != 666 and (type>2 or type<0):
             sys.exit(2)
         filename_out=sys.argv[5]
         seam_carve=seam(filename_in, filename_out, m_out, n_out, type)

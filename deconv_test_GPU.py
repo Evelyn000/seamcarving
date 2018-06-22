@@ -4,15 +4,16 @@ import cv2
 import sys
 import torch
 
-def decon_img(layer_output):
-    raw_img = layer_output.transpose(1,2,0)
+def decon_img(raw_img):
     img = (raw_img-raw_img.min())/(raw_img.max()-raw_img.min())*255
-    img = img.astype(np.uint16)
-    return img
+    #img = img.astype(np.uint16)
+    ret = np.zeros((1, 224, 224), dtype=np.float64)
+    ret[0] = (img[0]+img[1]+img[2])/3.0
+    ret = (ret-ret.min())/(ret.max()-ret.min())*255
+    ret= ret.transpose(1,2,0)
+    return ret
 
-if __name__ == '__main__':
-	filename = sys.argv[1]
-	img = cv2.imread(filename).astype(np.int16)
+def energy_vgg(img, layer):
 	m, n, c = img.shape
 	img = cv2.resize(img, (224, 224))
 
@@ -27,7 +28,7 @@ if __name__ == '__main__':
 
 	deconv=VGG19_deconv()
 	deconv.cuda()
-	for layer in conv_layer_indices:
+	if layer in conv_layer_indices:
 		n_maps = conv.feature_outputs[layer].data.cpu().numpy().shape[1]
 
 
@@ -35,23 +36,20 @@ if __name__ == '__main__':
 		for map_idx in range(n_maps):
 			ret = deconv(conv.feature_outputs[layer][0][map_idx][None,None,:,:], layer, map_idx, conv.pool_indices)
 			raw_map += ret.data.cpu().numpy()[0]
-		#decon = deconv(conv.feature_outputs[layer][0][map_idx][None,None,:,:], layer, map_idx, conv.pool_indices)
 		img = decon_img(raw_map)
-		img=cv2.resize(img, (n, m))
-		filename='./deconv/deconvlayer'+str(layer)+'.jpg'
-		print(filename, img.shape)
-		print(img)
-		cv2.imwrite(filename, img)
+		img = cv2.resize(img, (n, m))
+		return img
+
+	else:
+		return -1
 
 
-'''
-	layer=28
-
-	n_maps = conv.feature_outputs[layer].data.numpy().shape[1]
-	map_idx = 0
-		#for map_idx in range(n_maps):
-		#	decon = vgg16_d(conv.feature_outputs[layer][0][map_idx][None,None,:,:], conv_layer, map_idx, conv.pool_indices)
-	decon = deconv(conv.feature_outputs[layer][0][map_idx][None,None,:,:], layer, map_idx, conv.pool_indices)
-	#print(layer, ' ', decon.shape, '\n')
-	img = decon_img(decon)
-	'''
+if __name__ == '__main__':
+	filename = sys.argv[1]
+	img = cv2.imread(filename).astype(np.int16)
+	
+	for layer in [0, 2, 5, 7, 10, 12, 14, 16, 19, 21, 23, 25, 28, 30, 32, 34]:
+		energy_map = energy_vgg(img, layer)
+		energy_map = energy_map.astype(np.uint16)
+		filename='./deconvGRAY/deconvlayer'+str(layer)+'.jpg'
+		cv2.imwrite(filename, energy_map)

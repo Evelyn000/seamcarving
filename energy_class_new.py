@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt # plt 用于显示图片
 import matplotlib.image as mpimg # mpimg 用于读取图片
 import numpy as np
 import cv2
-import torch.models as models
-from features_vgg19 import vggmodel
+#import torch.models as models
+#from features_vgg19 import vggmodel
 #import Image
 #img = mpimg.imread('coast.jpg') # 读取和代码处于同一目录下的 coast.jpg
 # 此时 img 就已经是一个 np.array 了，可以对它进行任意处理
@@ -43,45 +43,34 @@ class ENERGY:
             return self.forward(img)
         elif self.energy_type == 3:
             return self.deepbased(img)
-    
+        elif self.energy_type == 666:
+            return self.deconvbased(img)
+
+    def deconvbased(self, img):
+        import deconv_test_GPU as VGG
+        return VGG.energy_vgg(img, 34)
+
+    '''
     def deepbased(self, img):
         pretrained_model = models.vgg19(pretrained=True).features 
-        model = vggmodel(pretrained_model, img)
+        model = vggmodel(pretrained_model)
         model.show() # print every layer's info 
+        firstrelu = model.extract_firstrelu()
+        a = firstrelu.squeeze(0)
+        b = a.data.numpy()
+        channel, height, width = b.shape
+        acmp = np.zeros((height, width))
         
-        firstlayer = model.extract_firstlayer()
-        secondlayer = model.extract_secondlayer()
-        thirdlayer = model.extract_thirdlayer()
-        print('firstlayer shape', firstlayer.shape)
-        print('secondlayer shape', secondlayer.shape)
-        print('thirdlayer shape', thirdlayer.shape)
-    
-        featuretensor1 = (firstlayer.squeeze(0)).data.numpy()
-        featuretensor2 = (secondlayer.squeeze(0)).data.numpy()
-        featuretensor3 = (thirdlayer.squeeze(0)).data.numpy()
-    
-        channel, height, width = featuretensor1.shape
-        featuremap1 = np.zeros((height, width))
         for i in range (0, channel):
-            featuremap1 += abs(featuretensor1[i]*featuretensor1[i])
-            
-        channel, height, width = featuretensor2.shape
-        featuremap2 = np.zeros((height, width))
-        for i in range (0, channel):
-            featuremap2 += abs(featuretensor2[i]*featuretensor2[i])
+            acmp += abs(b[i])
     
-        channel, height, width = featuretensor3.shape
-        featuremap3 = np.zeros((height, width))
-        for i in range (0, channel):
-            featuremap3 += abs(featuretensor3[i]*featuretensor3[i])
-    
-        height, width = img.shape[:2]    
-        np.resize(featuremap1, (height, width))
-        np.resize(featuremap2, (height, width))
-        np.resize(featuremap3, (height, width))
-    
-        featuremap = featuremap1 + featuremap2 + featuremap3
-        return featuremap
+        #print('acmp', acmp)
+        B = acmp
+        G = acmp
+        R = acmp     
+        Gray = R*0.3 + G*0.59 + B*0.11
+        return Gray
+    '''
     
     def without_le(self, img):
         height, width = img.shape[:2]
