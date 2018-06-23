@@ -128,7 +128,10 @@ class ENERGY:
                 s = 0
                 for m in range (i-4,i+5):
                     for n in range (j-4,j+5):
-                        p[m-(i-4), n-(j-4)] = Gray[m,n] / basef[i,j]
+                        if basef[i,j] == 0:
+                            p[m-(i-4),n-(j-4)] = 10000
+                        else:
+                            p[m-(i-4), n-(j-4)] = Gray[m,n] / basef[i,j]
                         temp = math.log(p[m-(i-4), n-(j-4)] + 1)
                         s += -p[m-(i-4), n-(j-4)] * temp
                 H[i,j] = s
@@ -140,7 +143,7 @@ class ENERGY:
         energy_map = self.with_le(img)
         return self.forward_energy_map(energy_map, img)
     
-    def forward_energy_map(self, energy_map,img):
+    def forward_energy_map(self, energy_map, img):
         mat_x = self.neighbourmat_forward(self.kernel_x, img)
         mat_y_left = self.neighbourmat_forward(self.kernel_y_left, img)
         mat_y_right = self.neighbourmat_forward(self.kernel_y_right, img)
