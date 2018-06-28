@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt # plt 用于显示图片
 import matplotlib.image as mpimg # mpimg 用于读取图片
 import numpy as np
 import cv2
+from numba import jit
+
 #import torch.models as models
 #from features_vgg19 import vggmodel
 #import Image
@@ -22,6 +24,7 @@ plt.imshow(img) # 显示图片
 plt.title('coast')
 plt.axis('off') # 不显示坐标轴
 '''
+
 class ENERGY:
     def __init__(self, type):
         #kernel for local entropy computation
@@ -73,6 +76,7 @@ class ENERGY:
         return Gray
     '''
     
+    @jit
     def without_le(self, img):
         height, width = img.shape[:2]
         B,G,R = cv2.split(img)
@@ -113,6 +117,7 @@ class ENERGY:
             
         return M # M is a matrix
     
+    @jit
     def with_le(self, img):
         height, width = img.shape[:2]
         B,G,R = cv2.split(img)
@@ -143,6 +148,7 @@ class ENERGY:
         energy_map = self.with_le(img)
         return self.forward_energy_map(energy_map, img)
     
+    @jit
     def forward_energy_map(self, energy_map, img):
         mat_x = self.neighbourmat_forward(self.kernel_x, img)
         mat_y_left = self.neighbourmat_forward(self.kernel_y_left, img)
