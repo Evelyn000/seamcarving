@@ -144,7 +144,7 @@ class ENERGY:
         return H + M
     
     def forward(self,img):
-        energy_map = self.with_le(img)
+        energy_map = self.without_le(img)
         return self.forward_energy_map(energy_map, img)
     
     @jit
