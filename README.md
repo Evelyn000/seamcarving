@@ -23,4 +23,14 @@ For help, see
 <pre><code>python seam.py --help
 </code></pre>
 
+To ensure that you have properly set up the environment for running, you can simple type the following command:
+<pre><code>pip install -r requirements.txt
+</code></pre>
+or just run the script file to set up the environment as well as test the data we demonstrate in our report:
+<pre><code>./run.sh
+</code></pre>
+
+If you prefer to set up the environment manually, please comment the second line in the script file like this:
+<pre><code>#pip install -r requirements.txt
+</code></pre>
 
