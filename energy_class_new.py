@@ -47,11 +47,10 @@ class ENERGY:
         elif self.energy_type == 3:
             return self.deepbased(img)
         elif self.energy_type == 666:
-            return self.deconvbased(img, layer)
+            return self.deconvbased(img, layer)+self.without_le(img)*0.5
 
     def deconvbased(self, img, layer):
         import deconv_test_GPU as VGG
-        print('layer:', layer)
         return VGG.energy_vgg(img, layer)
 
     '''
