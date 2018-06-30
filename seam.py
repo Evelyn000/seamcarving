@@ -211,6 +211,9 @@ def main():
     usage += "1=regular energy with entropy term\n"
     usage += "2=forward energy\n"
     usage += "666=deep-based energy"
+    usage += "you can also set up the number of layer you choose for the deep method\n"
+    usage += "the number of layer shoule be in [0, 2, 5, 7, 10, 12, 14, 16, 19, 21, 23, 25, 28, 30, 32, 34]\n"
+    usage += "just append the number at the end of your command"
     
     
     if len(sys.argv)!=7 and len(sys.argv)!=6 and len(sys.argv)!=2:
