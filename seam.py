@@ -89,6 +89,28 @@ class seam:
     def Find_seam(self, M): # M is a matrix of energy
         m, n = M.shape
         seam_point_list = np.zeros((m, ), dtype=np.int16)
+        cumulative_energy = np.zeros((m, n), dtype = np.float64)
+        last_pos = np.zeros((m, n), dtype = np.int16)
+        cumulative_energy[0, :] = M[0, :]
+        for i in range(1, m):
+            for j in range(n):
+                if j == 0:
+                    cumulative_energy[i, j] = cumulative_energy[i-1, j:j+2].min()+M[i, j]
+                    last_pos[i, j] = np.argmin(M[i-1, j:j+2])
+                elif j == n-1:
+                    cumulative_energy[i, j] = cumulative_energy[i-1, j-1: n].min()+M[i, j]
+                    last_pos[i, j] = np.argmin(M[i-1, j-1:n])+j-1
+                else:
+                    cumulative_energy[i, j] = cumulative_energy[i-1, j-1: j+2].min()+M[i, j]
+                    last_pos[i, j] = np.argmin(M[i-1, j-1: j+2])+j-1
+        seam_point_list[-1]=np.argmin(cumulative_energy[-1, :])
+        for i in range(m-2, -1, -1):
+            seam_point_list[i] = last_pos[i+1, seam_point_list[i+1]]
+        return seam_point_list
+
+
+        '''
+        seam_point_list = np.zeros((m, ), dtype=np.int16)
         seam_point_list[-1] = np.argmin(M[-1])
         for i in range(m-2, -1, -1):
             tmp=seam_point_list[i+1]
@@ -100,7 +122,7 @@ class seam:
                 seam_point_list[i]=np.argmin(M[i, tmp-1 :tmp+2])+tmp-1
         #print(seam_point_list[i])
         return seam_point_list #seam_point_list 用来储存seam路线上的所有点的坐标
-
+        '''
     ##compute_energy(img)
     '''
     def enlarge(self, n_o):
@@ -126,7 +148,7 @@ class seam:
             self.img_out=self.Duplicate_seam(seam_point_list, self.img_out)
             mask=self.Remove_seam(seam_point_list_org, mask)
             mask_cd=self.remove_mask(seam_point_list_org, mask_cd)
-            m, n, c=self.img_out.shapes
+            m, n, c=self.img_out.shape
 
 
     def collapse(self, n_o):
