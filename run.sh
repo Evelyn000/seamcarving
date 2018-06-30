@@ -21,3 +21,23 @@ python seam.py 14.jpg 200 168 0 14_e0.jpg
 python seam.py 14.jpg 200 168 1 14_e1.jpg
 python seam.py 14.jpg 200 168 2 14_e2.jpg
 python seam.py 14.jpg 200 168 666 14_e666.jpg layer16
+
+python seam.py x1.jpg 384 240 0 x1_e0.jpg
+python seam.py x1.jpg 384 240 1 x1_e1.jpg
+python seam.py x1.jpg 384 240 2 x1_e2.jpg
+python seam.py x1.jpg 384 240 666 x1_e666.jpg layer16
+
+python seam.py x2.jpg 298 240 0 x1_e0.jpg
+python seam.py x2.jpg 298 240 1 x1_e1.jpg
+python seam.py x2.jpg 298 240 2 x1_e2.jpg
+python seam.py x2.jpg 298 240 666 x1_e666.jpg layer25
+
+python seam.py x9.jpg 192 240 0 x9_e0.jpg
+python seam.py x9.jpg 192 240 1 x9_e1.jpg
+python seam.py x9.jpg 192 240 2 x9_e2.jpg
+python seam.py x9.jpg 192 240 666 x9_e666.jpg layer23
+
+python seam.py x13.jpg 384 234 0 x13_e0.jpg
+python seam.py x13.jpg 384 234 1 x13_e1.jpg
+python seam.py x13.jpg 384 234 2 x13_e2.jpg
+python seam.py x13.jpg 384 234 666 x13_e666.jpg layer30
